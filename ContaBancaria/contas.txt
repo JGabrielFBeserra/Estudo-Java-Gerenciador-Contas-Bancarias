@@ -1,8 +1,8 @@
-497817, Ana Lima, 2985.98
+497817, Ana Lima, 0.98
 26210, Tiago Martins, 16260.02
 316397, Bruno Carvalho, 3581.99
 586972, Maria Souza, 11895.93
-12001, Camila Pinto, 19407.5
+12001, Camila Pinto, 19407.50
 771456, Gabriel Melo, 11446.13
 963167, Fernanda Dias, 16568.81
 973543, Rafael Costa, 15951.06
@@ -17,3 +17,4 @@
 364236, André Barbosa, 9677.75
 832850, Beatriz Rocha, 15235.21
 77676, Bruno Carvalho, 3734.72
+13123123, Bruno, 123.00

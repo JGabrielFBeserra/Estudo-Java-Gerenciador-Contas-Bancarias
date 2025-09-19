@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/C:/Users/jgabr/OneDrive/Documentos/NetBeansProjects/ContaBancaria/src/br/com/banco/app/Main.java</file>
+            <file>file:/C:/Users/jgabr/OneDrive/Documentos/NetBeansProjects/ContaBancaria/src/br/com/banco/exceptions/SaldoInsuficienteException.java</file>
+            <file>file:/C:/Users/jgabr/OneDrive/Documentos/NetBeansProjects/ContaBancaria/src/br/com/banco/model/ContaCorrente.java</file>
+            <file>file:/C:/Users/jgabr/OneDrive/Documentos/NetBeansProjects/ContaBancaria/src/br/com/banco/model/Conta.java</file>
+            <file>file:/C:/Users/jgabr/OneDrive/Documentos/NetBeansProjects/ContaBancaria/src/br/com/banco/core/Banco.java</file>
+            <file>file:/C:/Users/jgabr/OneDrive/Documentos/NetBeansProjects/ContaBancaria/src/br/com/banco/view/HomeBancoGUI.java</file>
+            <file>file:/C:/Users/jgabr/OneDrive/Documentos/NetBeansProjects/ContaBancaria/src/br/com/banco/view/ListContaGUI.java</file>
+            <file>file:/C:/Users/jgabr/OneDrive/Documentos/NetBeansProjects/ContaBancaria/src/br/com/banco/service/ContaService.java</file>
+            <file>file:/C:/Users/jgabr/OneDrive/Documentos/NetBeansProjects/ContaBancaria/src/br/com/banco/view/ContaTableModel.java</file>
+        </group>
+    </open-files>
+</project-private>

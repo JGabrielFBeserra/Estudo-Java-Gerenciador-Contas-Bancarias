@@ -15,19 +15,18 @@ public class ListContaGUI extends javax.swing.JDialog {
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ListContaGUI.class.getName());
 
     public ListContaGUI(java.awt.Frame parent, boolean modal, Banco banco) {
-    super(parent, modal);
-    this.banco = banco;
-    try {
-        initComponents();              // do NetBeans
-        setLocationRelativeTo(parent);
-        carregarTabela();              // monta modelo + renderers + listener
-    } catch (Throwable t) {
-        t.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Erro abrindo lista: " + t.getClass().getSimpleName()
-                                             + " - " + String.valueOf(t.getMessage()));
+        super(parent, modal);
+        this.banco = banco;
+        try {
+            initComponents();              // do NetBeans
+            setLocationRelativeTo(parent);
+            carregarTabela();              // monta modelo + renderers + listener
+        } catch (Throwable t) {
+            t.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Erro abrindo lista: " + t.getClass().getSimpleName()
+                    + " - " + String.valueOf(t.getMessage()));
+        }
     }
-}
-
 
     private void carregarTabela() {
         List<ContaCorrente> contas = banco.listarContas();
@@ -80,9 +79,22 @@ public class ListContaGUI extends javax.swing.JDialog {
     }
 
     private void atualizarLabels(ContaCorrente conta) {
+        
         lblId.setText("Número: " + conta.getId());
         lblTitular.setText("Titular: " + conta.getTitular());
         lblSaldo.setText("Saldo: R$ " + conta.getSaldo());
+    }
+
+    private void salvarCompleto(String caminho) {
+        try (java.io.BufferedWriter bw = new java.io.BufferedWriter(new java.io.FileWriter(caminho))) {
+            for (ContaCorrente c : banco.listarContas()) {
+                // use getNumero() se esse for o seu getter; troque getId() se necessário
+                bw.write(c.getId() + ", " + c.getTitular() + ", " + String.format(java.util.Locale.US, "%.2f", c.getSaldo()));
+                bw.newLine();
+            }
+        } catch (java.io.IOException e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Erro ao salvar: " + e.getMessage());
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -204,6 +216,16 @@ public class ListContaGUI extends javax.swing.JDialog {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtValorActionPerformed
 
+    private void salvarContasAtualizadas(String caminho) {
+        try (java.io.BufferedWriter bw = new java.io.BufferedWriter(new java.io.FileWriter(caminho))) {
+            for (ContaCorrente c : banco.listarContas()) {
+                bw.write(c.getId() + "," + c.getTitular() + "," + c.getSaldo()); // use getNumero() se for o seu caso
+                bw.newLine();
+            }
+        } catch (java.io.IOException e) {
+            JOptionPane.showMessageDialog(this, "Erro ao salvar: " + e.getMessage());
+        }
+    }
     private void btnDepositarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDepositarActionPerformed
         int row = tabelaContas.getSelectedRow();
         if (row == -1) {
@@ -220,13 +242,22 @@ public class ListContaGUI extends javax.swing.JDialog {
             conta.depositar(valor);
             carregarTabela(); // atualiza tabela
             atualizarLabels(conta); // método para atualizar os labels abaixo
+            salvarCompleto("contas.txt");
+            salvarContasAtualizadas("extrato_logs.txt");
             JOptionPane.showMessageDialog(this, "Depósito realizado com sucesso!");
+            lblId.setText("Número: -");
+            lblTitular.setText("Titular: -");
+            lblSaldo.setText("Saldo: R$ -");
+            txtValor.setText("");
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Digite um valor válido!");
         }
+
+
     }//GEN-LAST:event_btnDepositarActionPerformed
 
     private void btnSacarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSacarActionPerformed
+
         int row = tabelaContas.getSelectedRow();
         if (row == -1) {
             JOptionPane.showMessageDialog(this, "Selecione uma conta primeiro!");
@@ -241,13 +272,21 @@ public class ListContaGUI extends javax.swing.JDialog {
                 conta.sacar(valor);
                 carregarTabela();
                 atualizarLabels(conta);
+                salvarCompleto("contas.txt");
                 JOptionPane.showMessageDialog(this, "Saque realizado com sucesso!");
+                salvarContasAtualizadas("extrato_logs.txt");
+                txtValor.setText("");
+                lblId.setText("Número: -");
+                lblTitular.setText("Titular: -");
+                lblSaldo.setText("Saldo: R$ -");
             } catch (br.com.banco.exceptions.SaldoInsuficienteException e) {
                 JOptionPane.showMessageDialog(this, e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
             }
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Digite um valor válido!");
         }
+
+
     }//GEN-LAST:event_btnSacarActionPerformed
 
     /**

@@ -94,7 +94,12 @@ public class HomeBancoGUI extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnCriarContasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCriarContasActionPerformed
-        // TODO add your handling code here:
+        CriarContaGUI dlg = new CriarContaGUI(
+        (java.awt.Frame) javax.swing.SwingUtilities.getWindowAncestor(this),
+        true,
+        banco // usa o mesmo Banco em memória
+    );
+    dlg.setVisible(true);
     }//GEN-LAST:event_btnCriarContasActionPerformed
 
     private void btnListarContasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnListarContasActionPerformed
