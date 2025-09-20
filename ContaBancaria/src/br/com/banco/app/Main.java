@@ -24,7 +24,7 @@ public class Main {
 
    
         SwingUtilities.invokeLater(() -> {
-        HomeBancoGUI home = new HomeBancoGUI(null, true, banco);
+        HomeBancoGUI home = new HomeBancoGUI(null, true);
         home.setVisible(true);
     });
     }

@@ -1,6 +1,6 @@
 package br.com.banco.view;
 
-import br.com.banco.core.Banco;
+import br.com.banco.service.BancoService;
 import br.com.banco.model.ContaCorrente;
 import javax.swing.*;
 import java.io.BufferedWriter;
@@ -11,23 +11,23 @@ import java.util.Locale;
 
 public class CriarContaGUI extends javax.swing.JDialog {
 
-    private final Banco banco;
+    private final BancoService bancoService;
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(CriarContaGUI.class.getName());
 
     /**
      * Creates new form CriarContaGUI
      */
-    public CriarContaGUI(java.awt.Frame parent, boolean modal, Banco banco) {
+    public CriarContaGUI(java.awt.Frame parent, boolean modal, BancoService bancoService) {
         super(parent, modal);
-        this.banco = banco;
-        initComponents();               // (do NetBeans)
+        this.bancoService = bancoService;
+        initComponents();
         setLocationRelativeTo(parent);
     }
 
     private void salvarContasAtualizadas(String caminho) {
         try (java.io.BufferedWriter bw = new java.io.BufferedWriter(new java.io.FileWriter(caminho))) {
-            for (br.com.banco.model.ContaCorrente c : banco.listarContas()) {
+            for (br.com.banco.model.ContaCorrente c : bancoService.listar()) {
                 bw.write(c.getId() + ", " + c.getTitular() + ", " + String.format(java.util.Locale.US, "%.2f", c.getSaldo()));
                 bw.newLine();
             }
@@ -35,15 +35,15 @@ public class CriarContaGUI extends javax.swing.JDialog {
             javax.swing.JOptionPane.showMessageDialog(this, "Erro ao salvar: " + e.getMessage());
         }
     }
-    
+
     private void appendConta(String caminho, br.com.banco.model.ContaCorrente c) {
-    try (java.io.BufferedWriter bw = new java.io.BufferedWriter(new java.io.FileWriter(caminho, true))) {
-        bw.write(c.getId() + ", " + c.getTitular() + ", " + String.format(java.util.Locale.US, "%.2f", c.getSaldo()));
-        bw.newLine();
-    } catch (java.io.IOException e) {
-        javax.swing.JOptionPane.showMessageDialog(this, "Erro ao anexar no arquivo original: " + e.getMessage());
+        try (java.io.BufferedWriter bw = new java.io.BufferedWriter(new java.io.FileWriter(caminho, true))) {
+            bw.write(c.getId() + ", " + c.getTitular() + ", " + String.format(java.util.Locale.US, "%.2f", c.getSaldo()));
+            bw.newLine();
+        } catch (java.io.IOException e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Erro ao anexar no arquivo original: " + e.getMessage());
+        }
     }
-}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -155,37 +155,48 @@ public class CriarContaGUI extends javax.swing.JDialog {
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
         try {
             // 1) ler e validar
-            int id = Integer.parseInt(txtId.getText().trim()); // ou id
+            int id = Integer.parseInt(txtId.getText().trim());
             if (id <= 0) {
                 JOptionPane.showMessageDialog(this, "Número deve ser > 0.");
                 return;
             }
 
             String titular = txtTitular.getText().trim();
-            if (titular.isEmpty()) {JOptionPane.showMessageDialog(this, "Informe o titular."); return;}
+            if (titular.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Informe o titular.");
+                return;
+            }
 
-            double saldo = Double.parseDouble(txtSaldo.getText().trim()); if (saldo < 0) { JOptionPane.showMessageDialog(this, "Saldo inicial não pode ser negativo."); return;}
+            double saldo = Double.parseDouble(txtSaldo.getText().trim());
+            if (saldo < 0) {
+                JOptionPane.showMessageDialog(this, "Saldo inicial não pode ser negativo.");
+                return;
+            }
 
-            if (banco.existeId(id)) { JOptionPane.showMessageDialog(this, "Já existe conta com esse número."); return; }
+            if (bancoService.existeId(id)) {
+                JOptionPane.showMessageDialog(this, "Já existe conta com esse número.");
+                return;
+            }
 
-       
-            ContaCorrente nova = new ContaCorrente(id, titular, saldo); // (ou id, titular, saldo)
-            banco.adicionarConta(nova);
+            // 2) criar via service (retorna a conta criada)
+            ContaCorrente nova = bancoService.criarConta(id, titular, saldo);
 
-            // 3) persistir
-            salvarContasAtualizadas("contas_atualizadas.txt");
-            appendConta("contas.txt", nova); 
+            // 3) persistir via service
+            bancoService.salvarCompleto("contas_atualizadas.txt"); // reescreve TODAS
+            bancoService.appendConta("contas.txt", nova);          // dá append no original
 
             // 4) feedback e fechar
             NumberFormat brl = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
             JOptionPane.showMessageDialog(this,
-                    "Conta criada: Id: " + id + " | Titular:  " + titular + " | Saldo Incial: (" + brl.format(saldo) + ")");
+                    "Conta criada: Id " + id + " | Titular: " + titular + " | Saldo inicial: " + brl.format(saldo));
             dispose();
+
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Preencha números válidos em iD* e Saldo (ex: 123 e 1000.50).");
+            JOptionPane.showMessageDialog(this, "Preencha números válidos em ID e Saldo (ex: 123 e 1000.50).");
         } catch (IllegalArgumentException iae) {
-            // caso seu Banco.adicionarConta lance erro de duplicata
             JOptionPane.showMessageDialog(this, iae.getMessage());
+        } catch (java.io.IOException ioe) {
+            JOptionPane.showMessageDialog(this, "Erro de I/O: " + ioe.getMessage(), "I/O", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnSalvarActionPerformed
 
@@ -196,39 +207,6 @@ public class CriarContaGUI extends javax.swing.JDialog {
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the dialog */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                CriarContaGUI dialog = new CriarContaGUI(new javax.swing.JFrame(), true);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCancelar;

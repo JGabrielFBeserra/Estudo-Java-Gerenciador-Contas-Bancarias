@@ -7,9 +7,8 @@ import br.com.banco.model.ContaCorrente;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+
 
 public class Banco {
     // vive em tempo de execução
@@ -25,10 +24,7 @@ public class Banco {
 
     // list contas
     public List<ContaCorrente> listarContas() {
-        //Ele cria uma view não modificável da lista
-        // conseguindo ler, acessar elementos, iterar, pegar tamanho,
-        // mas não pode alterar (adicionar, remover ou substituir) os elementos.
-        return Collections.unmodifiableList(contas);
+        return contas;
     }
 
     // search por id

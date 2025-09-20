@@ -1,9 +1,9 @@
-497817,Ana Lima,0.9800000000000182
-26210,Tiago Martins,16260.02
-316397,Bruno Carvalho,3581.99
+497817,Ana Lima,999000.98
+26210,Tiago Martins,36260.02
+316397,Bruno Carvalho,81.99
 586972,Maria Souza,11895.93
-12001,Camila Pinto,19407.5
-771456,Gabriel Melo,11446.13
+12001,Camila Pinto,9407.5
+771456,Gabriel Melo,21446.13
 963167,Fernanda Dias,16568.81
 973543,Rafael Costa,15951.06
 248227,Gabriel Melo,11909.07
@@ -18,3 +18,5 @@
 832850,Beatriz Rocha,15235.21
 77676,Bruno Carvalho,3734.72
 13123123,Bruno,123.0
+12312312,Bruno,10000.0
+123,Renan,123.0

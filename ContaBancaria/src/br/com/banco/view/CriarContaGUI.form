@@ -35,10 +35,7 @@
                   </Group>
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="txtSaldo" min="-2" pref="97" max="-2" attributes="0"/>
-                              <EmptySpace min="19" pref="19" max="-2" attributes="0"/>
-                          </Group>
+                          <Component id="txtSaldo" alignment="0" min="-2" pref="97" max="-2" attributes="0"/>
                           <Component id="jLabel1" min="-2" pref="116" max="-2" attributes="0"/>
                           <Component id="txtTitular" min="-2" pref="97" max="-2" attributes="0"/>
                           <Component id="jLabel3" min="-2" pref="116" max="-2" attributes="0"/>

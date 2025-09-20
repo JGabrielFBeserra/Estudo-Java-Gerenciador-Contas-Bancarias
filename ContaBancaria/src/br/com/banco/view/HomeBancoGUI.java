@@ -5,6 +5,9 @@
 package br.com.banco.view;
 
 import br.com.banco.core.Banco;
+import br.com.banco.service.BancoService;
+import br.com.banco.service.ContaCorrenteService;
+
 import javax.swing.*;
 
 /**
@@ -14,18 +17,31 @@ import javax.swing.*;
 public class HomeBancoGUI extends javax.swing.JDialog {
 
     private final Banco banco;
+    private final BancoService bancoService;
+    private final ContaCorrenteService contaService;
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(HomeBancoGUI.class.getName());
 
     /**
      * Creates new form HomeBancoGUI
      */
-    public HomeBancoGUI(java.awt.Frame parent, boolean modal, Banco banco) {
+    public HomeBancoGUI(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
-        this.banco = banco;
-        initComponents(); // gerado pelo NetBeans
-        setLocationRelativeTo(null);
+        this.banco = new Banco();
+        this.bancoService = new BancoService(banco);
+        this.contaService = new ContaCorrenteService(banco);
+
+        try {
+            bancoService.carregarDeArquivo("contas.txt");
+        } catch (java.io.IOException e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Falha ao carregar: " + e.getMessage());
+        }
+
+        initComponents();
+        setLocationRelativeTo(parent);
     }
+    
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -95,24 +111,25 @@ public class HomeBancoGUI extends javax.swing.JDialog {
 
     private void btnCriarContasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCriarContasActionPerformed
         CriarContaGUI dlg = new CriarContaGUI(
-        (java.awt.Frame) javax.swing.SwingUtilities.getWindowAncestor(this),
-        true,
-        banco // usa o mesmo Banco em memória
-    );
-    dlg.setVisible(true);
+                (java.awt.Frame) javax.swing.SwingUtilities.getWindowAncestor(this),
+                true,
+                bancoService // usa o mesmo Banco em memória
+        );
+        dlg.setVisible(true);
     }//GEN-LAST:event_btnCriarContasActionPerformed
 
     private void btnListarContasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnListarContasActionPerformed
         try {
-            ListContaGUI dlg = new ListContaGUI(
-                    (java.awt.Frame) javax.swing.SwingUtilities.getWindowAncestor(this),
-                    true,
-                    banco // o mesmo Banco carregado no Home
-            );
+            br.com.banco.view.ListContaGUI dlg = new br.com.banco.view.ListContaGUI(
+                            (java.awt.Frame) javax.swing.SwingUtilities.getWindowAncestor(this),
+                            true,
+                            bancoService,
+                            contaService
+                    );
             dlg.setVisible(true);
         } catch (Throwable t) {
             t.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Erro abrindo lista: " + t.getMessage());
+            javax.swing.JOptionPane.showMessageDialog(this, "Erro abrindo lista: " + t.getMessage());
         }
     }//GEN-LAST:event_btnListarContasActionPerformed
 
