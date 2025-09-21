@@ -26,7 +26,7 @@ public class CriarContaGUI extends javax.swing.JDialog {
     }
 
     private void salvarContasAtualizadas(String caminho) {
-        try (java.io.BufferedWriter bw = new java.io.BufferedWriter(new java.io.FileWriter(caminho))) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(caminho))) {
             for (br.com.banco.model.ContaCorrente c : bancoService.listar()) {
                 bw.write(c.getId() + ", " + c.getTitular() + ", " + String.format(java.util.Locale.US, "%.2f", c.getSaldo()));
                 bw.newLine();
@@ -36,8 +36,8 @@ public class CriarContaGUI extends javax.swing.JDialog {
         }
     }
 
-    private void appendConta(String caminho, br.com.banco.model.ContaCorrente c) {
-        try (java.io.BufferedWriter bw = new java.io.BufferedWriter(new java.io.FileWriter(caminho, true))) {
+    private void appendConta(String caminho, ContaCorrente c) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(caminho, true))) {
             bw.write(c.getId() + ", " + c.getTitular() + ", " + String.format(java.util.Locale.US, "%.2f", c.getSaldo()));
             bw.newLine();
         } catch (java.io.IOException e) {
@@ -178,14 +178,13 @@ public class CriarContaGUI extends javax.swing.JDialog {
                 return;
             }
 
-            // 2) criar via service (retorna a conta criada)
+            // criar via service (retorna a conta criada)
             ContaCorrente nova = bancoService.criarConta(id, titular, saldo);
 
-            // 3) persistir via service
+            // persistir via service
             bancoService.salvarCompleto("contas_atualizadas.txt"); // reescreve TODAS
             bancoService.appendConta("contas.txt", nova);          // dá append no original
 
-            // 4) feedback e fechar
             NumberFormat brl = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
             JOptionPane.showMessageDialog(this,
                     "Conta criada: Id " + id + " | Titular: " + titular + " | Saldo inicial: " + brl.format(saldo));

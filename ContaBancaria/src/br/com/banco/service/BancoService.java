@@ -22,29 +22,23 @@ public class BancoService {
     public List<ContaCorrente> listar() {
         return banco.listarContas();
     }
+    
+    
 
     public boolean existeId(int numero) {
         return banco.existeId(numero);
     }
 
     // Criar conta com unicidade
-    public ContaCorrente criarConta(int numero, String titular, double saldo) {
-        if (numero <= 0) {
-            throw new IllegalArgumentException("Número deve ser > 0.");
-        }
-        if (titular == null || titular.isBlank()) {
-            throw new IllegalArgumentException("Titular obrigatório.");
-        }
-        if (saldo < 0) {
-            throw new IllegalArgumentException("Saldo inicial não pode ser negativo.");
-        }
-        if (banco.existeId(numero)) {
-            throw new IllegalArgumentException("Já existe conta com esse número.");
-        }
-        ContaCorrente c = new ContaCorrente(numero, titular, saldo); // ajuste para getId/getNumero
-        banco.adicionarConta(c);
-        return c;
-    }
+    public ContaCorrente criarConta(int id, String titular, double saldo) {
+    if (id <= 0) throw new IllegalArgumentException("Número deve ser > 0.");
+    if (titular == null || titular.isBlank()) throw new IllegalArgumentException("Titular obrigatório.");
+    if (saldo < 0) throw new IllegalArgumentException("Saldo inicial não pode ser negativo.");
+    if (banco.existeId(id)) throw new IllegalArgumentException("Já existe conta com esse número.");
+    ContaCorrente c = new ContaCorrente(id, titular, saldo);
+    banco.adicionarConta(c);
+    return c;
+}
 
     // Carrega as contas do contas.txt
     public void carregarDeArquivo(String path) throws IOException {
@@ -68,7 +62,7 @@ public class BancoService {
         }
     }
 
-    // Salva TODAS as contas (sobrescreve)
+    // Salva as contas (sobrescreve atulizando)
     public void salvarCompleto(String path) throws IOException {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(path))) {
             for (ContaCorrente c : banco.listarContas()) {

@@ -1,0 +1,23 @@
+497817, Ana Lima, 999000.98
+26210, Tiago Martins, 36260.02
+316397, Bruno Carvalho, 1.99
+586972, Maria Souza, 11895.93
+12001, Camila Pinto, 9407.50
+771456, Gabriel Melo, 21446.13
+963167, Fernanda Dias, 16568.81
+973543, Rafael Costa, 15951.06
+248227, Gabriel Melo, 11909.07
+542927, Ana Lima, 19803.44
+721599, João Silva, 2951.41
+828474, Bruno Carvalho, 18814.77
+444169, Pedro Alves, 11478.77
+126091, João Silva, 2635.11
+423883, Tiago Martins, 2365.67
+102886, Juliana Castro, 12209.36
+364236, André Barbosa, 9677.75
+832850, Beatriz Rocha, 15235.21
+77676, Bruno Carvalho, 3734.72
+13123123, Bruno, 123.00
+12312312, Bruno, 10000.00
+123, Renan, 123.00
+42313, Gabriel, 123123.00

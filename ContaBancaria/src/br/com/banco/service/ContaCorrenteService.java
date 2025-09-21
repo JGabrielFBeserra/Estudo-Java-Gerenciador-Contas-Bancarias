@@ -9,8 +9,8 @@ public class ContaCorrenteService {
 
     public ContaCorrenteService(Banco banco) { this.banco = banco; }
 
-    public ContaCorrente buscarPorNumero(int numero) {
-        return banco.buscarPorNumero(numero); // pode retornar null
+    public ContaCorrente buscarPorNumero(int id) {
+        return banco.buscarPorId(id); // pode retornar null
     }
 
     public void depositar(ContaCorrente conta, double valor) {
@@ -21,5 +21,11 @@ public class ContaCorrenteService {
     public void sacar(ContaCorrente conta, double valor) throws SaldoInsuficienteException {
         if (valor <= 0) throw new IllegalArgumentException("Valor deve ser > 0.");
         conta.sacar(valor);
+    }
+    
+    public void transferir(ContaCorrente origem, ContaCorrente destino, double valor) throws SaldoInsuficienteException {
+        if (origem == null || destino == null) throw new IllegalArgumentException("Contas inválidas.");
+        sacar(origem, valor);
+        depositar(destino, valor);
     }
 }
