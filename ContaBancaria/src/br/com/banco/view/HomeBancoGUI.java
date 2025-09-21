@@ -4,9 +4,9 @@
  */
 package br.com.banco.view;
 
-import br.com.banco.core.Banco;
 import br.com.banco.service.BancoService;
 import br.com.banco.service.ContaCorrenteService;
+import br.com.banco.service.TarifaService;
 
 import javax.swing.*;
 
@@ -16,32 +16,23 @@ import javax.swing.*;
  */
 public class HomeBancoGUI extends javax.swing.JDialog {
 
-    private final Banco banco;
-    private final BancoService bancoService;
-    private final ContaCorrenteService contaService;
-
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(HomeBancoGUI.class.getName());
 
-    /**
-     * Creates new form HomeBancoGUI
-     */
-    public HomeBancoGUI(java.awt.Frame parent, boolean modal) {
+    private final BancoService bancoService;
+    private final ContaCorrenteService contaService;
+    private final TarifaService tarifaService;
+
+    public HomeBancoGUI(java.awt.Frame parent, boolean modal,
+            BancoService bancoService,
+            ContaCorrenteService contaService,
+            br.com.banco.service.TarifaService tarifaService) {
         super(parent, modal);
-        this.banco = new Banco();
-        this.bancoService = new BancoService(banco);
-        this.contaService = new ContaCorrenteService(banco);
-
-        try {
-            bancoService.carregarDeArquivo("contas.txt");
-        } catch (java.io.IOException e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Falha ao carregar: " + e.getMessage());
-        }
-
+        this.bancoService = bancoService;
+        this.contaService = contaService;
+        this.tarifaService = tarifaService;
         initComponents();
         setLocationRelativeTo(parent);
     }
-    
-    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -110,65 +101,25 @@ public class HomeBancoGUI extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnCriarContasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCriarContasActionPerformed
-        CriarContaGUI dlg = new CriarContaGUI(
+        var dlg = new br.com.banco.view.CriarContaGUI(
                 (java.awt.Frame) javax.swing.SwingUtilities.getWindowAncestor(this),
                 true,
-                bancoService // usa o mesmo Banco em memória
+                bancoService
         );
         dlg.setVisible(true);
     }//GEN-LAST:event_btnCriarContasActionPerformed
 
     private void btnListarContasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnListarContasActionPerformed
-        try {
-            br.com.banco.view.ListContaGUI dlg = new br.com.banco.view.ListContaGUI(
-                            (java.awt.Frame) javax.swing.SwingUtilities.getWindowAncestor(this),
-                            true,
-                            bancoService,
-                            contaService
-                    );
-            dlg.setVisible(true);
-        } catch (Throwable t) {
-            t.printStackTrace();
-            javax.swing.JOptionPane.showMessageDialog(this, "Erro abrindo lista: " + t.getMessage());
-        }
+        var dlg = new br.com.banco.view.ListContaGUI(
+                (java.awt.Frame) javax.swing.SwingUtilities.getWindowAncestor(this),
+                true,
+                bancoService,
+                contaService,
+                tarifaService 
+        );
+        dlg.setVisible(true);
     }//GEN-LAST:event_btnListarContasActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the dialog */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                HomeBancoGUI dialog = new HomeBancoGUI(new javax.swing.JFrame(), true);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCriarContas;

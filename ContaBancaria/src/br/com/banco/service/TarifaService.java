@@ -10,31 +10,41 @@ import java.util.Map;
 
 public class TarifaService {
 
-    /** Só calcula o valor (não mexe no saldo). */
-    public double calcular(ContaCorrente conta, TarifaStrategy strategy) {
-        double t = strategy.calcular(conta.getSaldo());
+    private final BancoService bancoService;
+    private final ContaCorrenteService contaService;
+
+    public TarifaService(BancoService bancoService, ContaCorrenteService contaService) {
+        this.bancoService = bancoService;
+        this.contaService = contaService;
+    }
+
+    /**
+     * Calcula a tarifa pelo saldo ATUAL do BD.
+     */
+    public double calcular(int numero, TarifaStrategy strategy) {
+        ContaCorrente c = bancoService.buscar(numero);
+        if (c == null) {
+            throw new IllegalArgumentException("Conta não encontrada.");
+        }
+        double t = strategy.calcular(c.getSaldo());
         return Math.max(0.0, t);
     }
 
-    /** Debita a tarifa da conta. Respeita a mesma regra do saque (não deixa negativo). */
-    public double aplicar(ContaCorrente conta, TarifaStrategy strategy) {
-    double tarifa = calcular(conta, strategy);
-    if (tarifa <= 0) return 0.0;
-
-    try {
-        conta.sacar(tarifa); // se não tiver saldo, lança
-        return tarifa;
-    } catch (br.com.banco.exceptions.SaldoInsuficienteException e) {
-        return 0.0; // política A: não cobra se faltar saldo
-    }
-}
-
-    /** Aplica em lote e retorna quanto foi cobrado de cada conta. (0.0 se não cobrou). */
-    public Map<ContaCorrente, Double> aplicarEmTodas(List<ContaCorrente> contas, TarifaStrategy strategy) {
-        Map<ContaCorrente, Double> cobradas = new LinkedHashMap<>();
-        for (ContaCorrente c : contas) {
-            cobradas.put(c, aplicar(c, strategy)); // sem saldo: não cobra
+    /**
+     * Aplica (debita) a tarifa no BD. Política A: se não houver saldo
+     * suficiente, NÃO cobra e retorna 0.0.
+     */
+    public double aplicar(int numero, TarifaStrategy strategy) {
+        double valor = calcular(numero, strategy);
+        if (valor <= 0) {
+            return 0.0;
         }
-        return cobradas;
+        try {
+            contaService.sacar(numero, valor);   // UPDATE ... AND saldo >= ?
+            return valor;
+        } catch (SaldoInsuficienteException e) {
+            return 0.0; // sem saldo: não cobra
+        }
     }
+
 }

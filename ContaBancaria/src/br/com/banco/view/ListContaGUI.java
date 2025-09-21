@@ -1,10 +1,10 @@
 package br.com.banco.view;
 
-import br.com.banco.core.Banco;
 import br.com.banco.model.ContaCorrente;
 import br.com.banco.exceptions.SaldoInsuficienteException;
 import br.com.banco.service.BancoService;
 import br.com.banco.service.ContaCorrenteService;
+import br.com.banco.service.TarifaService;
 import br.com.banco.service.TarifaService;
 import br.com.banco.view.ContaGUI;
 
@@ -16,49 +16,36 @@ import java.text.NumberFormat;
 import java.util.Locale;
 import java.io.*;
 
+
 public class ListContaGUI extends javax.swing.JDialog {
 
     private final BancoService bancoService;
     private final ContaCorrenteService contaService;
+    private final TarifaService tarifaService;
 
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ListContaGUI.class.getName());
+    private boolean selecaoConfigurada = false;
+    // controla a direção atual da ordenação
+    private boolean faixaAsc = true;
 
     public ListContaGUI(java.awt.Frame parent, boolean modal,
             BancoService bancoService,
-            ContaCorrenteService contaService) {
+            ContaCorrenteService contaService,
+            br.com.banco.service.TarifaService tarifaService) {
         super(parent, modal);
         this.bancoService = bancoService;
         this.contaService = contaService;
+        this.tarifaService = tarifaService;
         initComponents();
         setLocationRelativeTo(parent);
         carregarTabela();
-
+        configurarSelecao();
     }
 
     private void carregarTabela() {
-        setTableData(bancoService.listar());
-        configurarSelecao();
-        List<ContaCorrente> contas = bancoService.listar();
-        ContaTableModel model = new ContaTableModel(contas);
-        tabelaContas.setModel(model);
-        tabelaContas.setRowSorter(new TableRowSorter<>(model));
-        tabelaContas.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-        aplicarRenderersPadrao(); // bloco de centralização + saldo com R$
-
-        // listener de seleção
-        tabelaContas.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting() && tabelaContas.getSelectedRow() != -1) {
-                int row = tabelaContas.getSelectedRow();
-                int modelRow = tabelaContas.convertRowIndexToModel(row);
-                ContaTableModel m = (ContaTableModel) tabelaContas.getModel();
-                ContaCorrente conta = m.getContaAt(modelRow);
-                atualizarLabels(conta);
-            }
-        });
+        // Busca do DB via service e aplica no JTable
+        var contas = bancoService.listar();
+        setTableData(contas); // set model + sorter + renderers (já no seu método)
     }
-
-    private boolean selecaoConfigurada = false;
 
     private void configurarSelecao() {
         if (selecaoConfigurada) {
@@ -73,6 +60,36 @@ public class ListContaGUI extends javax.swing.JDialog {
             }
         });
         selecaoConfigurada = true;
+    }
+
+    private java.util.List<ContaCorrente> baseAtual() {
+        return chkAcima10k.isSelected()
+                ? bancoService.filtrarSaldoMaiorQue(10_000)
+                : bancoService.listar();
+    }
+
+    private void ordenarPorFaixaEAtualizar() {
+        java.util.Comparator<ContaCorrente> compAsc
+                = java.util.Comparator
+                        .comparingInt((ContaCorrente c) -> faixaRank(c.getSaldo()))
+                        .thenComparing(ContaCorrente::getSaldo);
+
+        java.util.Comparator<ContaCorrente> compDesc
+                = java.util.Comparator
+                        .comparingInt((ContaCorrente c) -> faixaRank(c.getSaldo()))
+                        .thenComparing(ContaCorrente::getSaldo, java.util.Comparator.reverseOrder());
+
+        var base = baseAtual();
+        var ordenada = base.stream()
+                .sorted(faixaAsc ? compAsc : compDesc)
+                .toList();
+
+        setTableData(ordenada);
+
+        // limpa detalhes (opcional)
+        lblId.setText("Número: —");
+        lblTitular.setText("Titular: —");
+        lblSaldo.setText("Saldo: —");
     }
 
     private void aplicarRenderersPadrao() {
@@ -119,13 +136,36 @@ public class ListContaGUI extends javax.swing.JDialog {
     }
 
     private void atualizarLabels(ContaCorrente conta) {
-
         lblId.setText("Número: " + conta.getId());
         lblTitular.setText("Titular: " + conta.getTitular());
         lblSaldo.setText("Saldo: R$ " + String.format("%.2f", conta.getSaldo()));
     }
 
+    private void selecionarPorId(int id) {
+        ContaTableModel m = (ContaTableModel) tabelaContas.getModel();
+        for (int i = 0; i < m.getRowCount(); i++) {
+            if (m.getContaAt(i).getId() == id) {
+                int viewIndex = tabelaContas.convertRowIndexToView(i);
+                tabelaContas.setRowSelectionInterval(viewIndex, viewIndex);
+                break;
+            }
+        }
+    }
+
+    private void selecionarContaNaTabela(int numero) {
+        ContaTableModel m = (ContaTableModel) tabelaContas.getModel();
+        for (int i = 0; i < m.getRowCount(); i++) {
+            if (m.getContaAt(i).getId() == numero) {
+                int view = tabelaContas.convertRowIndexToView(i);
+                tabelaContas.setRowSelectionInterval(view, view);
+                atualizarLabels(m.getContaAt(i));
+                break;
+            }
+        }
+    }
+
     @SuppressWarnings("unchecked")
+
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -143,7 +183,7 @@ public class ListContaGUI extends javax.swing.JDialog {
         btnSaldoTotal = new javax.swing.JButton();
         btnAgruparFaixa = new javax.swing.JButton();
         btnAvancado = new javax.swing.JButton();
-        btnTransacao = new javax.swing.JButton();
+        btnOrdenarFaixa = new javax.swing.JButton();
 
         jCheckBox1.setText("jCheckBox1");
 
@@ -216,7 +256,7 @@ public class ListContaGUI extends javax.swing.JDialog {
             }
         });
 
-        btnAgruparFaixa.setText("Agrupar");
+        btnAgruparFaixa.setText("Agrupar por Faixa");
         btnAgruparFaixa.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnAgruparFaixaActionPerformed(evt);
@@ -230,10 +270,10 @@ public class ListContaGUI extends javax.swing.JDialog {
             }
         });
 
-        btnTransacao.setText("Transação");
-        btnTransacao.addActionListener(new java.awt.event.ActionListener() {
+        btnOrdenarFaixa.setText("Ordenar por Faixa (ASC)");
+        btnOrdenarFaixa.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnTransacaoActionPerformed(evt);
+                btnOrdenarFaixaActionPerformed(evt);
             }
         });
 
@@ -246,11 +286,13 @@ public class ListContaGUI extends javax.swing.JDialog {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(btnVoltar)
-                        .addGap(18, 18, 18)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(chkAcima10k)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnAgruparFaixa)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnOrdenarFaixa, javax.swing.GroupLayout.PREFERRED_SIZE, 266, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnSaldoTotal)
                         .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
@@ -263,12 +305,9 @@ public class ListContaGUI extends javax.swing.JDialog {
                             .addComponent(btnSacar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(btnDepositar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(txtValor, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnAvancado)
-                            .addComponent(btnTransacao))
-                        .addGap(14, 14, 14))))
-            .addComponent(Jscrollai, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnAvancado, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+            .addComponent(Jscrollai)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -278,11 +317,11 @@ public class ListContaGUI extends javax.swing.JDialog {
                     .addComponent(btnVoltar)
                     .addComponent(chkAcima10k)
                     .addComponent(btnSaldoTotal)
-                    .addComponent(btnAgruparFaixa))
+                    .addComponent(btnAgruparFaixa)
+                    .addComponent(btnOrdenarFaixa))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(Jscrollai, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(lblId, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -290,15 +329,14 @@ public class ListContaGUI extends javax.swing.JDialog {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(lblTitular)
-                            .addComponent(btnDepositar)))
-                    .addGroup(layout.createSequentialGroup()
+                            .addComponent(btnDepositar))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lblSaldo)
+                            .addComponent(btnSacar)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(3, 3, 3)
-                        .addComponent(btnAvancado, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblSaldo)
-                    .addComponent(btnSacar)
-                    .addComponent(btnTransacao))
+                        .addComponent(btnAvancado, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(13, 13, 13))
         );
 
@@ -314,8 +352,8 @@ public class ListContaGUI extends javax.swing.JDialog {
     }//GEN-LAST:event_txtValorActionPerformed
 
     private void btnDepositarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDepositarActionPerformed
-        int row = tabelaContas.getSelectedRow();
-        if (row == -1) {
+        int viewRow = tabelaContas.getSelectedRow();
+        if (viewRow == -1) {
             JOptionPane.showMessageDialog(this, "Selecione uma conta primeiro!");
             return;
         }
@@ -326,41 +364,38 @@ public class ListContaGUI extends javax.swing.JDialog {
                 return;
             }
 
-            int modelRow = tabelaContas.convertRowIndexToModel(row);
+            int modelRow = tabelaContas.convertRowIndexToModel(viewRow);
             ContaTableModel model = (ContaTableModel) tabelaContas.getModel();
             ContaCorrente conta = model.getContaAt(modelRow);
 
-            // negócio
-            contaService.depositar(conta, valor);
+            // --- negócio no BD ---
+            contaService.depositar(conta.getId(), valor);
 
-            // persistência (I/O) – só no service
-            try {
-                bancoService.salvarCompleto("contas_atualizadas.txt");   // requisito 5
-                // opcional: também sobrescrever o contas.txt
-                // bancoService.salvarCompleto("contas.txt");
-            } catch (java.io.IOException e) {
-                JOptionPane.showMessageDialog(this, "Erro ao salvar: " + e.getMessage(),
-                        "I/O", JOptionPane.ERROR_MESSAGE);
-            }
-
-            // refresh de tabela mantendo a seleção
+            // --- refresh a partir do BD ---
             setTableData(bancoService.listar());
-            if (modelRow >= 0 && modelRow < tabelaContas.getRowCount()) {
-                int newViewRow = tabelaContas.convertRowIndexToView(modelRow);
-                tabelaContas.setRowSelectionInterval(newViewRow, newViewRow);
+            selecionarPorId(conta.getId());
+
+            // atualiza labels com o registro já recarregado
+            int sel = tabelaContas.getSelectedRow();
+            if (sel != -1) {
+                int mr = tabelaContas.convertRowIndexToModel(sel);
+                ContaCorrente atual = ((ContaTableModel) tabelaContas.getModel()).getContaAt(mr);
+                atualizarLabels(atual);
             }
-            atualizarLabels(conta);
+
             JOptionPane.showMessageDialog(this, "Depósito realizado com sucesso.");
             txtValor.setText("");
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Digite um valor válido (ex: 123.45).");
+        } catch (RuntimeException ex) { // caso seu service converta SQLException
+            JOptionPane.showMessageDialog(this, "Falha ao depositar: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
 
     }//GEN-LAST:event_btnDepositarActionPerformed
 
     private void btnSacarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSacarActionPerformed
-        int row = tabelaContas.getSelectedRow();
-        if (row == -1) {
+        int viewRow = tabelaContas.getSelectedRow();
+        if (viewRow == -1) {
             JOptionPane.showMessageDialog(this, "Selecione uma conta primeiro!");
             return;
         }
@@ -371,38 +406,36 @@ public class ListContaGUI extends javax.swing.JDialog {
                 return;
             }
 
-            int modelRow = tabelaContas.convertRowIndexToModel(row);
+            int modelRow = tabelaContas.convertRowIndexToModel(viewRow);
             ContaTableModel model = (ContaTableModel) tabelaContas.getModel();
             ContaCorrente conta = model.getContaAt(modelRow);
 
+            // --- negócio no BD ---
             try {
-                // negócio
-                contaService.sacar(conta, valor);
-
-                // persistência (I/O) – só no service
-                try {
-                    bancoService.salvarCompleto("contas_atualizadas.txt");
-                    // opcional: também sobrescrever o contas.txt
-                    // bancoService.salvarCompleto("contas.txt");
-                } catch (java.io.IOException e) {
-                    JOptionPane.showMessageDialog(this, "Erro ao salvar: " + e.getMessage(),
-                            "I/O", JOptionPane.ERROR_MESSAGE);
-                }
-
-                // refresh mantendo seleção
-                setTableData(bancoService.listar());
-                if (modelRow >= 0 && modelRow < tabelaContas.getRowCount()) {
-                    int newViewRow = tabelaContas.convertRowIndexToView(modelRow);
-                    tabelaContas.setRowSelectionInterval(newViewRow, newViewRow);
-                }
-                atualizarLabels(conta);
-                JOptionPane.showMessageDialog(this, "Saque realizado com sucesso.");
-                txtValor.setText("");
+                contaService.sacar(conta.getId(), valor);
             } catch (br.com.banco.exceptions.SaldoInsuficienteException e) {
                 JOptionPane.showMessageDialog(this, e.getMessage(), "Saldo insuficiente", JOptionPane.ERROR_MESSAGE);
+                return;
             }
+
+            // --- refresh a partir do BD ---
+            setTableData(bancoService.listar());
+            selecionarPorId(conta.getId());
+
+            // atualiza labels com o registro já recarregado
+            int sel = tabelaContas.getSelectedRow();
+            if (sel != -1) {
+                int mr = tabelaContas.convertRowIndexToModel(sel);
+                ContaCorrente atual = ((ContaTableModel) tabelaContas.getModel()).getContaAt(mr);
+                atualizarLabels(atual);
+            }
+
+            JOptionPane.showMessageDialog(this, "Saque realizado com sucesso.");
+            txtValor.setText("");
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Digite um valor válido (ex: 123.45).");
+        } catch (RuntimeException ex) {
+            JOptionPane.showMessageDialog(this, "Falha ao sacar: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
 
     }//GEN-LAST:event_btnSacarActionPerformed
@@ -417,24 +450,25 @@ public class ListContaGUI extends javax.swing.JDialog {
 
         setTableData(dados);
 
-        // opcional: limpar detalhes
+        // limpar detalhes
         lblId.setText("Número: —");
         lblTitular.setText("Titular: —");
         lblSaldo.setText("Saldo: —");
     }//GEN-LAST:event_chkAcima10kStateChanged
 
     private void btnSaldoTotalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaldoTotalActionPerformed
+
         double total = bancoService.saldoTotal();
         var brl = java.text.NumberFormat.getCurrencyInstance(new java.util.Locale("pt", "BR"));
-        JOptionPane.showMessageDialog(this, "Saldo total: " + brl.format(total));
+        javax.swing.JOptionPane.showMessageDialog(this, "Saldo total: " + brl.format(total));
+
     }//GEN-LAST:event_btnSaldoTotalActionPerformed
 
     private void btnAgruparFaixaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgruparFaixaActionPerformed
-        var grupos = bancoService.agruparPorFaixa(); // Map<String, List<ContaCorrente>>
+        var grupos = bancoService.agruparPorFaixa();
         var brl = java.text.NumberFormat.getCurrencyInstance(new java.util.Locale("pt", "BR"));
 
-        // ordem exigida: a), b), c)
-        List<java.util.Map.Entry<String, String>> ordem = java.util.List.of(
+        var ordem = java.util.List.of(
                 new java.util.AbstractMap.SimpleEntry<>("a) Até R$ 5.000", "Até R$ 5.000"),
                 new java.util.AbstractMap.SimpleEntry<>("b) R$ 5.001 a R$ 10.000", "R$ 5.001 a R$ 10.000"),
                 new java.util.AbstractMap.SimpleEntry<>("c) Acima de R$ 10.000", "Acima de R$ 10.000")
@@ -442,8 +476,8 @@ public class ListContaGUI extends javax.swing.JDialog {
 
         String corpo = ordem.stream()
                 .map(pair -> {
-                    String rotulo = pair.getKey();   // "a) Até R$ 5.000"
-                    String chave = pair.getValue(); // "Até R$ 5.000"
+                    String rotulo = pair.getKey();
+                    String chave = pair.getValue();
                     var stats = grupos.getOrDefault(chave, java.util.Collections.emptyList())
                             .stream()
                             .collect(java.util.stream.Collectors.summarizingDouble(ContaCorrente::getSaldo));
@@ -453,97 +487,64 @@ public class ListContaGUI extends javax.swing.JDialog {
                 .collect(java.util.stream.Collectors.joining("\n"));
 
         javax.swing.JOptionPane.showMessageDialog(
-                this, "Resumo por faixa:\n\n" + corpo, "Agrupamento por Faixa",
+                this, "Resumo por faixa:\n\n" + corpo,
+                "Agrupamento por Faixa",
                 javax.swing.JOptionPane.INFORMATION_MESSAGE
         );
 
-        // 2) ordenar a TABELA por faixa (a, b, c) e, dentro da faixa, por saldo desc
+        // base atual (respeita o check >10k)
+        var base = chkAcima10k.isSelected()
+                ? bancoService.filtrarSaldoMaiorQue(10_000)
+                : bancoService.listar();
+
+        // ordenar por faixa asc, depois saldo asc
         java.util.Comparator<ContaCorrente> byFaixaThenSaldoAsc
                 = java.util.Comparator.comparingInt((ContaCorrente c) -> faixaRank(c.getSaldo()))
                         .thenComparing(ContaCorrente::getSaldo);
 
-        var base = chkAcima10k != null && chkAcima10k.isSelected()
-                ? bancoService.filtrarSaldoMaiorQue(10_000)
-                : bancoService.listar();
-
         var ordenada = base.stream().sorted(byFaixaThenSaldoAsc).toList();
         setTableData(ordenada);
 
+        // limpa detalhes
+        lblId.setText("Número: —");
+        lblTitular.setText("Titular: —");
+        lblSaldo.setText("Saldo: —");
 
     }//GEN-LAST:event_btnAgruparFaixaActionPerformed
 
     private void btnAvancadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAvancadoActionPerformed
         int viewRow = tabelaContas.getSelectedRow();
         if (viewRow == -1) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Selecione uma conta.");
+            JOptionPane.showMessageDialog(this, "Selecione uma conta.");
             return;
         }
-
-        // Converte índice da tabela para índice do modelo
         int modelRow = tabelaContas.convertRowIndexToModel(viewRow);
-        ContaTableModel model = (ContaTableModel) tabelaContas.getModel();
-        ContaCorrente conta = model.getContaAt(modelRow);
+        var conta = ((ContaTableModel) tabelaContas.getModel()).getContaAt(modelRow);
 
-        // Cria e abre o diálogo da conta
-        ContaGUI dlg = new ContaGUI(
+        var dlg = new br.com.banco.view.ContaGUI(
                 (java.awt.Frame) javax.swing.SwingUtilities.getWindowAncestor(this),
                 true,
                 bancoService,
                 contaService,
-                new TarifaService(), // pode ser singleton, mas ok instanciar aqui
+                tarifaService, // <-- chega aqui
                 conta
         );
         dlg.setVisible(true);
 
-        // Atualiza a tabela depois de fechar a tela
+        // refresh opcional após fechar
         setTableData(bancoService.listar());
-
-        // Reseleciona a linha na tabela, se ainda existir
-        if (modelRow < tabelaContas.getRowCount()) {
-            int newViewRow = tabelaContas.convertRowIndexToView(modelRow);
-            tabelaContas.setRowSelectionInterval(newViewRow, newViewRow);
-
-            ContaCorrente contaAtualizada = ((ContaTableModel) tabelaContas.getModel()).getContaAt(modelRow);
-            atualizarLabels(contaAtualizada);
-        }
+        selecionarPorId(conta.getId());
     }//GEN-LAST:event_btnAvancadoActionPerformed
 
-    private void btnTransacaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTransacaoActionPerformed
-        JOptionPane.showMessageDialog(this, "Tela de transações virá depois.");
-    }//GEN-LAST:event_btnTransacaoActionPerformed
+    private void btnOrdenarFaixaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOrdenarFaixaActionPerformed
+        
 
-    public static void main(String args[]) {
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
-        java.awt.EventQueue.invokeLater(() -> {
-            br.com.banco.core.Banco banco = new br.com.banco.core.Banco();
-            br.com.banco.service.BancoService bancoService = new br.com.banco.service.BancoService(banco);
-            br.com.banco.service.ContaCorrenteService contaService = new br.com.banco.service.ContaCorrenteService(banco);
-            try {
-                bancoService.carregarDeArquivo("contas.txt");
-            } catch (java.io.IOException e) {
-                e.printStackTrace();
-            }
-
-            ListContaGUI dialog = new ListContaGUI(new javax.swing.JFrame(), true, bancoService, contaService);
-            dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                @Override
-                public void windowClosing(java.awt.event.WindowEvent e) {
-                    System.exit(0);
-                }
-            });
-            dialog.setVisible(true);
-        });
-    }
+  
+        faixaAsc = !faixaAsc; // alterna direção
+        btnOrdenarFaixa.setText(faixaAsc ? "Ordenar por Faixa (ASC)" : "Ordenar por Faixa (DESC)");
+        ordenarPorFaixaEAtualizar();
+  
+    }//GEN-LAST:event_btnOrdenarFaixaActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -551,9 +552,9 @@ public class ListContaGUI extends javax.swing.JDialog {
     private javax.swing.JButton btnAgruparFaixa;
     private javax.swing.JButton btnAvancado;
     private javax.swing.JButton btnDepositar;
+    private javax.swing.JButton btnOrdenarFaixa;
     private javax.swing.JButton btnSacar;
     private javax.swing.JButton btnSaldoTotal;
-    private javax.swing.JButton btnTransacao;
     private javax.swing.JButton btnVoltar;
     private javax.swing.JCheckBox chkAcima10k;
     private javax.swing.JCheckBox jCheckBox1;

@@ -154,49 +154,27 @@ public class CriarContaGUI extends javax.swing.JDialog {
 
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
         try {
-            // 1) ler e validar
-            int id = Integer.parseInt(txtId.getText().trim());
-            if (id <= 0) {
-                JOptionPane.showMessageDialog(this, "Número deve ser > 0.");
-                return;
-            }
+        int id = Integer.parseInt(txtId.getText().trim());
+        String titular = txtTitular.getText().trim();
+        double saldo = Double.parseDouble(txtSaldo.getText().trim());
 
-            String titular = txtTitular.getText().trim();
-            if (titular.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Informe o titular.");
-                return;
-            }
+        // chama o service (MySQL)
+        ContaCorrente nova = bancoService.criarConta(id, titular, saldo);
 
-            double saldo = Double.parseDouble(txtSaldo.getText().trim());
-            if (saldo < 0) {
-                JOptionPane.showMessageDialog(this, "Saldo inicial não pode ser negativo.");
-                return;
-            }
+        java.text.NumberFormat brl = java.text.NumberFormat.getCurrencyInstance(new java.util.Locale("pt","BR"));
+        JOptionPane.showMessageDialog(this,
+                "Conta criada:\nNúmero: " + nova.getId() +
+                "\nTitular: " + nova.getTitular() +
+                "\nSaldo inicial: " + brl.format(nova.getSaldo()));
+        dispose(); // fecha o diálogo
 
-            if (bancoService.existeId(id)) {
-                JOptionPane.showMessageDialog(this, "Já existe conta com esse número.");
-                return;
-            }
-
-            // criar via service (retorna a conta criada)
-            ContaCorrente nova = bancoService.criarConta(id, titular, saldo);
-
-            // persistir via service
-            bancoService.salvarCompleto("contas_atualizadas.txt"); // reescreve TODAS
-            bancoService.appendConta("contas.txt", nova);          // dá append no original
-
-            NumberFormat brl = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
-            JOptionPane.showMessageDialog(this,
-                    "Conta criada: Id " + id + " | Titular: " + titular + " | Saldo inicial: " + brl.format(saldo));
-            dispose();
-
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Preencha números válidos em ID e Saldo (ex: 123 e 1000.50).");
-        } catch (IllegalArgumentException iae) {
-            JOptionPane.showMessageDialog(this, iae.getMessage());
-        } catch (java.io.IOException ioe) {
-            JOptionPane.showMessageDialog(this, "Erro de I/O: " + ioe.getMessage(), "I/O", JOptionPane.ERROR_MESSAGE);
-        }
+    } catch (NumberFormatException nfe) {
+        JOptionPane.showMessageDialog(this, "Preencha ID e Saldo com números válidos.");
+    } catch (IllegalArgumentException iae) {
+        JOptionPane.showMessageDialog(this, iae.getMessage());
+    } catch (RuntimeException re) {
+        JOptionPane.showMessageDialog(this, "Falha ao criar a conta: " + re.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+    }
     }//GEN-LAST:event_btnSalvarActionPerformed
 
     private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed

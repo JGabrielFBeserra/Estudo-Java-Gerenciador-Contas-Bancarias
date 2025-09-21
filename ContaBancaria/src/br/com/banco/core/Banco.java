@@ -7,16 +7,16 @@ import br.com.banco.model.ContaCorrente;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.io.*;
+
 
 
 public class Banco {
-    private final java.util.List<ContaCorrente> contas = new java.util.ArrayList<>();
+    private final List<ContaCorrente> contas = new ArrayList<>();
 
     public void adicionarConta(ContaCorrente c) { contas.add(c); }
 
-    public java.util.List<ContaCorrente> listarContas() {
-        return java.util.Collections.unmodifiableList(contas);
+    public List<ContaCorrente> listarContas() {
+        return Collections.unmodifiableList(contas);
     }
 
     public ContaCorrente buscarPorId(int id) {
