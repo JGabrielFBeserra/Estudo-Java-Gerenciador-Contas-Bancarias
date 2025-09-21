@@ -122,7 +122,7 @@ public class ListContaGUI extends javax.swing.JDialog {
 
         lblId.setText("Número: " + conta.getId());
         lblTitular.setText("Titular: " + conta.getTitular());
-        lblSaldo.setText("Saldo: R$ " + conta.getSaldo());
+        lblSaldo.setText("Saldo: R$ " + String.format("%.2f", conta.getSaldo()));
     }
 
     @SuppressWarnings("unchecked")

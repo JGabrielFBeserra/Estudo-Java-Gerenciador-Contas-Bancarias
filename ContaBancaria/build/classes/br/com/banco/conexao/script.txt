@@ -1,0 +1,14 @@
+CREATE DATABASE IF NOT EXISTS banco_digital
+  DEFAULT CHARACTER SET utf8mb4
+  DEFAULT COLLATE utf8mb4_0900_ai_ci;
+
+USE banco_digital;
+
+DROP TABLE IF EXISTS contas;
+CREATE TABLE contas (
+  numero  INT           NOT NULL,
+  titular VARCHAR(100)  NOT NULL,
+  saldo   DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  CONSTRAINT pk_contas PRIMARY KEY (numero),
+  CONSTRAINT ck_saldo_nao_negativo CHECK (saldo >= 0)
+);
