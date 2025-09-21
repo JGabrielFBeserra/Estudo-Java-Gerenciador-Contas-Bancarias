@@ -16,7 +16,6 @@ import java.text.NumberFormat;
 import java.util.Locale;
 import java.io.*;
 
-
 public class ListContaGUI extends javax.swing.JDialog {
 
     private final BancoService bancoService;
@@ -184,6 +183,7 @@ public class ListContaGUI extends javax.swing.JDialog {
         btnAgruparFaixa = new javax.swing.JButton();
         btnAvancado = new javax.swing.JButton();
         btnOrdenarFaixa = new javax.swing.JButton();
+        btnExcluir = new javax.swing.JButton();
 
         jCheckBox1.setText("jCheckBox1");
 
@@ -277,25 +277,32 @@ public class ListContaGUI extends javax.swing.JDialog {
             }
         });
 
+        btnExcluir.setText("Excluir");
+        btnExcluir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExcluirActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(Jscrollai)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addComponent(btnVoltar)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGap(37, 37, 37)
                         .addComponent(chkAcima10k)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGap(30, 30, 30)
                         .addComponent(btnAgruparFaixa)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnOrdenarFaixa, javax.swing.GroupLayout.PREFERRED_SIZE, 266, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnSaldoTotal)
-                        .addContainerGap())
-                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(btnOrdenarFaixa, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 42, Short.MAX_VALUE)
+                        .addComponent(btnSaldoTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(lblTitular, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 164, Short.MAX_VALUE)
                             .addComponent(lblId, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -306,8 +313,10 @@ public class ListContaGUI extends javax.swing.JDialog {
                             .addComponent(btnDepositar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(txtValor, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnAvancado, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-            .addComponent(Jscrollai)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnAvancado, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnExcluir, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -319,8 +328,9 @@ public class ListContaGUI extends javax.swing.JDialog {
                     .addComponent(btnSaldoTotal)
                     .addComponent(btnAgruparFaixa)
                     .addComponent(btnOrdenarFaixa))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(Jscrollai, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -333,11 +343,10 @@ public class ListContaGUI extends javax.swing.JDialog {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(lblSaldo)
-                            .addComponent(btnSacar)))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(3, 3, 3)
-                        .addComponent(btnAvancado, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(13, 13, 13))
+                            .addComponent(btnSacar)
+                            .addComponent(btnExcluir)))
+                    .addComponent(btnAvancado, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -537,14 +546,61 @@ public class ListContaGUI extends javax.swing.JDialog {
     }//GEN-LAST:event_btnAvancadoActionPerformed
 
     private void btnOrdenarFaixaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOrdenarFaixaActionPerformed
-        
 
-  
         faixaAsc = !faixaAsc; // alterna direção
         btnOrdenarFaixa.setText(faixaAsc ? "Ordenar por Faixa (ASC)" : "Ordenar por Faixa (DESC)");
         ordenarPorFaixaEAtualizar();
-  
+
     }//GEN-LAST:event_btnOrdenarFaixaActionPerformed
+
+    private void btnExcluirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExcluirActionPerformed
+        int viewRow = tabelaContas.getSelectedRow();
+        if (viewRow == -1) {
+            JOptionPane.showMessageDialog(this, "Selecione uma conta primeiro!");
+            return;
+        }
+
+        try {
+            // 1) pega a conta selecionada (ajustando índice da view -> model)
+            int modelRow = tabelaContas.convertRowIndexToModel(viewRow);
+            ContaTableModel model = (ContaTableModel) tabelaContas.getModel();
+            ContaCorrente conta = model.getContaAt(modelRow);
+
+            // 2) (opcional, mas recomendado) recarrega do BD p/ garantir dados atuais
+            ContaCorrente atual = bancoService.buscar(conta.getId());
+            if (atual == null) {
+                JOptionPane.showMessageDialog(this, "Conta não encontrada no banco.");
+                return;
+            }
+
+            // 3) confirma
+            int resp = JOptionPane.showConfirmDialog(
+                    this,
+                    "Excluir a conta " + atual.getId() + " de " + atual.getTitular() + "?",
+                    "Confirmar exclusão",
+                    JOptionPane.YES_NO_OPTION
+            );
+            if (resp != JOptionPane.YES_OPTION) {
+                return;
+            }
+
+            // 4) remove no BD
+            bancoService.removerConta(atual.getId());
+
+            // 5) refresh da tabela a partir do BD
+            setTableData(bancoService.listar());
+
+            // 6) limpa detalhes
+            lblId.setText("Número: —");
+            lblTitular.setText("Titular: —");
+            lblSaldo.setText("Saldo: —");
+
+            JOptionPane.showMessageDialog(this, "Conta removida.");
+        } catch (RuntimeException ex) {
+            JOptionPane.showMessageDialog(this, "Falha ao excluir: " + ex.getMessage(),
+                    "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnExcluirActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -552,6 +608,7 @@ public class ListContaGUI extends javax.swing.JDialog {
     private javax.swing.JButton btnAgruparFaixa;
     private javax.swing.JButton btnAvancado;
     private javax.swing.JButton btnDepositar;
+    private javax.swing.JButton btnExcluir;
     private javax.swing.JButton btnOrdenarFaixa;
     private javax.swing.JButton btnSacar;
     private javax.swing.JButton btnSaldoTotal;

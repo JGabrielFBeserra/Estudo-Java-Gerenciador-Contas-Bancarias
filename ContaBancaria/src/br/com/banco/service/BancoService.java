@@ -6,6 +6,8 @@ import br.com.banco.conexao.GerenciadorBancoDAO;
 import br.com.banco.conexao.InitDAO;
 
 import java.io.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -122,4 +124,50 @@ public class BancoService {
                         java.util.stream.Collectors.toList()
                 ));
     }
+
+    public void removerConta(int numero) {
+        if (numero <= 0) {
+            throw new IllegalArgumentException("Número inválido.");
+        }
+
+        try {
+            boolean ok = dao.remover(numero);
+            if (!ok) {
+                throw new RuntimeException("Conta não encontrada para remoção.");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao remover conta no banco.", e);
+        }
+    }
+
+    public void atualizarSaldo(int numero, BigDecimal novoSaldo) {
+        if (numero <= 0) {
+            throw new IllegalArgumentException("Número inválido.");
+        }
+        if (novoSaldo == null) {
+            throw new IllegalArgumentException("Saldo não pode ser nulo.");
+        }
+        // regra comum: não permitir saldo negativo ao setar
+        if (novoSaldo.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Saldo não pode ser negativo.");
+        }
+
+        try {
+            dao.atualizarSaldo(numero, novoSaldo.setScale(2, RoundingMode.HALF_UP));
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao atualizar saldo no banco.", e);
+        }
+    }
+
+    public void exportarParaTxt(String path) throws java.io.IOException {
+        var contas = listar(); // já vem do DAO/BD
+        try (var bw = new java.io.BufferedWriter(new java.io.FileWriter(path))) {
+            for (var c : contas) {
+                bw.write(c.getId() + "," + c.getTitular() + ","
+                        + String.format(java.util.Locale.US, "%.2f", c.getSaldo()));
+                bw.newLine();
+            }
+        }
+    }
+
 }

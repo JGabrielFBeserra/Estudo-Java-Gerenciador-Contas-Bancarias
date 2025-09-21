@@ -52,7 +52,6 @@ public class ContaGUI extends javax.swing.JDialog {
     }
 
     private void carregarDadosConta() {
-        // sempre pega do banco pra evitar ficar com dado velho
         ContaCorrente c = bancoService.buscar(conta.getId());
         if (c != null) {
             lblId.setText(String.valueOf(c.getId()));
@@ -126,21 +125,48 @@ public class ContaGUI extends javax.swing.JDialog {
         }
     }
 
+    private static java.math.BigDecimal parseBRL(String txt) {
+        if (txt == null || txt.isBlank()) {
+            throw new IllegalArgumentException("Informe um valor.");
+        }
+        try {
+            var df = (java.text.DecimalFormat) java.text.NumberFormat.getCurrencyInstance(new java.util.Locale("pt", "BR"));
+            df.setParseBigDecimal(true);
+            // Aceita com ou sem "R$"
+            var semEspacos = txt.replace(" ", "");
+            Number n = df.parse(semEspacos);
+            if (n instanceof java.math.BigDecimal bd) {
+                return bd.setScale(2, java.math.RoundingMode.HALF_UP);
+            }
+            return java.math.BigDecimal
+                    .valueOf(n.doubleValue())
+                    .setScale(2, java.math.RoundingMode.HALF_UP);
+        } catch (java.text.ParseException e) {
+            // Fallback: remove "R$", pontos de milhar e troca vírgula por ponto
+            String normalized = txt.replace("R$", "")
+                    .replace(" ", "")
+                    .replace(".", "")
+                    .replace(",", ".");
+            return new java.math.BigDecimal(normalized)
+                    .setScale(2, java.math.RoundingMode.HALF_UP);
+        }
+    }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
         btnSalvarTitular = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
         btnVoltar = new javax.swing.JButton();
         lblI = new javax.swing.JLabel();
         txtTitular = new javax.swing.JTextField();
         lblS = new javax.swing.JLabel();
         lblTitular = new javax.swing.JLabel();
-        btnSalvarTitular1 = new javax.swing.JButton();
+        btnEditar = new javax.swing.JButton();
         lblTarifaPrevista = new javax.swing.JLabel();
         btnAplicarTarifa = new javax.swing.JButton();
         cmbTarifa = new javax.swing.JComboBox<>();
-        lblSaldo = new javax.swing.JLabel();
         lblId = new javax.swing.JLabel();
         lblTarifarEm = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
@@ -148,10 +174,10 @@ public class ContaGUI extends javax.swing.JDialog {
         jLabel2 = new javax.swing.JLabel();
         txtValorTransferencia = new javax.swing.JTextField();
         btnRealizarTransferencia = new javax.swing.JToggleButton();
-        jLabel3 = new javax.swing.JLabel();
         scrollTodas = new javax.swing.JScrollPane();
         tabelaTodas = new javax.swing.JTable();
         btnRecarregarLista = new javax.swing.JButton();
+        lblSaldo = new javax.swing.JTextField();
 
         btnSalvarTitular.setText("Editar Titular");
         btnSalvarTitular.addActionListener(new java.awt.event.ActionListener() {
@@ -159,6 +185,8 @@ public class ContaGUI extends javax.swing.JDialog {
                 btnSalvarTitularActionPerformed(evt);
             }
         });
+
+        jButton1.setText("jButton1");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -181,10 +209,10 @@ public class ContaGUI extends javax.swing.JDialog {
 
         lblTitular.setText("Titular: ");
 
-        btnSalvarTitular1.setText("Editar Titular");
-        btnSalvarTitular1.addActionListener(new java.awt.event.ActionListener() {
+        btnEditar.setText("Editar");
+        btnEditar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnSalvarTitular1ActionPerformed(evt);
+                btnEditarActionPerformed(evt);
             }
         });
 
@@ -198,8 +226,6 @@ public class ContaGUI extends javax.swing.JDialog {
         });
 
         cmbTarifa.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
-        lblSaldo.setText("-");
 
         lblId.setText("-");
 
@@ -215,8 +241,6 @@ public class ContaGUI extends javax.swing.JDialog {
                 btnRealizarTransferenciaActionPerformed(evt);
             }
         });
-
-        jLabel3.setText("=================================================");
 
         tabelaTodas.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -246,28 +270,6 @@ public class ContaGUI extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(scrollTodas, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(lblTitular, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(lblS, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addComponent(lblI))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(lblId, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txtTitular, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)
-                            .addComponent(lblSaldo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(88, 88, 88)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(cmbTarifa, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(lblTarifaPrevista)
-                                .addGap(0, 52, Short.MAX_VALUE))
-                            .addComponent(lblTarifarEm, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnSalvarTitular1)
-                        .addGap(170, 170, 170)
-                        .addComponent(btnAplicarTarifa, javax.swing.GroupLayout.DEFAULT_SIZE, 128, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(btnRecarregarLista, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -281,10 +283,32 @@ public class ContaGUI extends javax.swing.JDialog {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(txtValorTransferencia))
                     .addGroup(layout.createSequentialGroup()
+                        .addComponent(btnVoltar)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(btnEditar)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                        .addComponent(lblTitular, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(lblS, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                    .addComponent(lblI))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(lblId, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(txtTitular, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)
+                                    .addComponent(lblSaldo))))
+                        .addGap(88, 88, 88)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnVoltar)
-                            .addComponent(jLabel3))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                            .addComponent(cmbTarifa, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(lblTarifaPrevista)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(lblTarifarEm, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGap(0, 61, Short.MAX_VALUE)
+                                .addComponent(btnAplicarTarifa, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -302,18 +326,16 @@ public class ContaGUI extends javax.swing.JDialog {
                     .addComponent(txtTitular, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblTitular)
                     .addComponent(cmbTarifa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(12, 12, 12)
+                .addGap(9, 9, 9)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblS)
-                    .addComponent(lblSaldo)
-                    .addComponent(lblTarifarEm))
+                    .addComponent(lblTarifarEm)
+                    .addComponent(lblSaldo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnSalvarTitular1)
+                    .addComponent(btnEditar)
                     .addComponent(btnAplicarTarifa))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel3)
-                .addGap(9, 9, 9)
+                .addGap(31, 31, 31)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(txtContaDestinoId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -345,23 +367,55 @@ public class ContaGUI extends javax.swing.JDialog {
 
     }//GEN-LAST:event_btnSalvarTitularActionPerformed
 
-    private void btnSalvarTitular1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarTitular1ActionPerformed
-        String novo = txtTitular.getText().trim();
-        if (novo.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Informe o titular.");
-            return;
-        }
+    private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
         try {
-            bancoService.atualizarTitular(Integer.parseInt(lblId.getText()), novo);
-            carregarDadosConta(); // recarrega da base
-            JOptionPane.showMessageDialog(this, "Titular atualizado.");
+            int id = Integer.parseInt(lblId.getText().trim());
+
+            // 1) ler campos
+            String novoTitular = txtTitular.getText().trim();
+            if (novoTitular.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Informe o titular.");
+                return;
+            }
+            java.math.BigDecimal novoSaldo = parseBRL(lblSaldo.getText().trim());
+            if (novoSaldo.compareTo(java.math.BigDecimal.ZERO) < 0) {
+                JOptionPane.showMessageDialog(this, "Saldo não pode ser negativo.");
+                return;
+            }
+
+            // 2) buscar estado atual para evitar updates desnecessários
+            br.com.banco.model.ContaCorrente atual = bancoService.buscar(id);
+            boolean mudouTitular = (atual == null) || !novoTitular.equals(atual.getTitular());
+            boolean mudouSaldo = (atual == null)
+                    || java.math.BigDecimal.valueOf(atual.getSaldo())
+                            .setScale(2, java.math.RoundingMode.HALF_UP)
+                            .compareTo(novoSaldo) != 0;
+
+            if (!mudouTitular && !mudouSaldo) {
+                JOptionPane.showMessageDialog(this, "Nada para atualizar.");
+                return;
+            }
+
+            // 3) atualizar (sequencial). Se preferir atômico, faça um DAO com UPDATE de ambos num commit só.
+            if (mudouTitular) {
+                bancoService.atualizarTitular(id, novoTitular);
+            }
+            if (mudouSaldo) {
+                bancoService.atualizarSaldo(id, novoSaldo);
+            }
+
+            // 4) recarrega da base e feedback
+            carregarDadosConta();
+            JOptionPane.showMessageDialog(this, "Dados atualizados.");
+        } catch (NumberFormatException nfe) {
+            JOptionPane.showMessageDialog(this, "ID inválido.");
         } catch (IllegalArgumentException iae) {
             JOptionPane.showMessageDialog(this, iae.getMessage());
         } catch (RuntimeException re) {
             JOptionPane.showMessageDialog(this, "Falha ao atualizar: " + re.getMessage(),
                     "Erro", JOptionPane.ERROR_MESSAGE);
         }
-    }//GEN-LAST:event_btnSalvarTitular1ActionPerformed
+    }//GEN-LAST:event_btnEditarActionPerformed
 
     private void btnAplicarTarifaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAplicarTarifaActionPerformed
         String sel = (String) cmbTarifa.getSelectedItem();
@@ -467,19 +521,19 @@ public class ContaGUI extends javax.swing.JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAplicarTarifa;
+    private javax.swing.JButton btnEditar;
     private javax.swing.JToggleButton btnRealizarTransferencia;
     private javax.swing.JButton btnRecarregarLista;
     private javax.swing.JButton btnSalvarTitular;
-    private javax.swing.JButton btnSalvarTitular1;
     private javax.swing.JButton btnVoltar;
     private javax.swing.JComboBox<String> cmbTarifa;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel lblI;
     private javax.swing.JLabel lblId;
     private javax.swing.JLabel lblS;
-    private javax.swing.JLabel lblSaldo;
+    private javax.swing.JTextField lblSaldo;
     private javax.swing.JLabel lblTarifaPrevista;
     private javax.swing.JLabel lblTarifarEm;
     private javax.swing.JLabel lblTitular;

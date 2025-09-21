@@ -30,7 +30,25 @@ public class Main {
             var bancoService = new BancoService(dao);
             var contaService = new ContaCorrenteService(dao);
             var tarifaService = new TarifaService(bancoService, contaService);
+
+            // === exporta contas.txt ao ENCERRAR a JVM ===
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                try {
+                    bancoService.exportarParaTxt("contas.txt");
+                } catch (Exception ex) {
+                    ex.printStackTrace(); // não use JOptionPane em hook
+                }
+            }));
+
             var home = new HomeBancoGUI(null, true, bancoService, contaService, tarifaService);
+
+            // garante que a JVM finalize ao fechar a Home (dispara o hook acima)
+            home.addWindowListener(new java.awt.event.WindowAdapter() {
+                @Override public void windowClosed(java.awt.event.WindowEvent e) {
+                    System.exit(0);
+                }
+            });
+
             home.setVisible(true);
         });
     }

@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.*;
@@ -108,6 +109,20 @@ public class GerenciadorBancoDAO {
         }
     }
 
+    public void atualizarSaldo(int numero, BigDecimal novoSaldo) throws SQLException {
+        String sql = "UPDATE contas SET saldo = ? WHERE numero = ?";
+        try (Connection con = ConexaoDAO.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setBigDecimal(1, novoSaldo.setScale(2, RoundingMode.HALF_UP));
+            ps.setInt(2, numero);
+
+            int n = ps.executeUpdate();
+            if (n == 0) {
+                throw new SQLException("Conta não encontrada.");
+            }
+        }
+    }
+
     public void transferir(int numeroOrigem, int numeroDestino, double valor)
             throws SQLException, br.com.banco.exceptions.SaldoInsuficienteException {
 
@@ -198,6 +213,15 @@ public class GerenciadorBancoDAO {
                 } catch (SQLException ignore) {
                 }
             }
+        }
+    }
+
+    public boolean remover(int numero) throws SQLException {
+        final String sql = "DELETE FROM contas WHERE numero = ?";
+        try (var con = ConexaoDAO.getConnection(); var ps = con.prepareStatement(sql)) {
+            ps.setInt(1, numero);
+            int linhas = ps.executeUpdate();
+            return linhas > 0; // true se apagou
         }
     }
 
