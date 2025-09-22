@@ -1,6 +1,5 @@
 package br.com.banco.service;
 
-import br.com.banco.core.Banco;
 import br.com.banco.model.ContaCorrente;
 import br.com.banco.conexao.GerenciadorBancoDAO;
 import br.com.banco.conexao.InitDAO;
@@ -25,13 +24,7 @@ public class BancoService {
         this.dao = dao;
     }
 
-    // antitgo
-    /* 
-    public List<ContaCorrente> listar() {
-        return banco.listarContas();
-    } 
-     */
-    // novo
+
     public List<ContaCorrente> listar() {
         try {
             return dao.listarContas(); // SELECT numero,titular,saldo FROM contas ORDER BY numero

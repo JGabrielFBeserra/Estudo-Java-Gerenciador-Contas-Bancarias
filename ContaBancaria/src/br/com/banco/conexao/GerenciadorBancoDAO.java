@@ -1,6 +1,7 @@
 package br.com.banco.conexao;
 
 import br.com.banco.conexao.ConexaoDAO;
+import br.com.banco.exceptions.SaldoInsuficienteException;
 import br.com.banco.model.ContaCorrente;
 
 import java.io.BufferedReader;
@@ -124,7 +125,7 @@ public class GerenciadorBancoDAO {
     }
 
     public void transferir(int numeroOrigem, int numeroDestino, double valor)
-            throws SQLException, br.com.banco.exceptions.SaldoInsuficienteException {
+            throws SQLException, SaldoInsuficienteException {
 
         if (numeroOrigem == numeroDestino) {
             throw new IllegalArgumentException("Contas de origem e destino não podem ser iguais.");
@@ -174,7 +175,7 @@ public class GerenciadorBancoDAO {
                 }
                 if (debited == 0) {
                     // Falhou por saldo insuficiente
-                    throw new br.com.banco.exceptions.SaldoInsuficienteException(
+                    throw new SaldoInsuficienteException(
                             "Saldo insuficiente para transferência.");
                 }
 
@@ -200,7 +201,7 @@ public class GerenciadorBancoDAO {
                 } catch (SQLException ignore) {
                 }
                 // Propaga mantendo o tipo (saldo insuficiente ou SQL)
-                if (ex instanceof br.com.banco.exceptions.SaldoInsuficienteException sie) {
+                if (ex instanceof SaldoInsuficienteException sie) {
                     throw sie;
                 }
                 if (ex instanceof SQLException se) {

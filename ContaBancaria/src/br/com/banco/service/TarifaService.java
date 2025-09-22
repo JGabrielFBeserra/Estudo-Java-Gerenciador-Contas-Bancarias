@@ -22,11 +22,11 @@ public class TarifaService {
      * Calcula a tarifa pelo saldo ATUAL do BD.
      */
     public double calcular(int numero, TarifaStrategy strategy) {
-        ContaCorrente c = bancoService.buscar(numero);
-        if (c == null) {
+        ContaCorrente conta = bancoService.buscar(numero);
+        if (conta == null) {
             throw new IllegalArgumentException("Conta não encontrada.");
         }
-        double t = strategy.calcular(c.getSaldo());
+        double t = strategy.calcular(conta.getSaldo());
         return Math.max(0.0, t);
     }
 
@@ -40,7 +40,7 @@ public class TarifaService {
             return 0.0;
         }
         try {
-            contaService.sacar(numero, valor);   // UPDATE ... AND saldo >= ?
+            contaService.sacar(numero, valor);   
             return valor;
         } catch (SaldoInsuficienteException e) {
             return 0.0; // sem saldo: não cobra

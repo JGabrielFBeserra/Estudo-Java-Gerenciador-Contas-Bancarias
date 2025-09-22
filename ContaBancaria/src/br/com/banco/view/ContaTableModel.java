@@ -1,7 +1,6 @@
 package br.com.banco.view;
 
 import br.com.banco.model.ContaCorrente;
-import br.com.banco.core.Banco;
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
 

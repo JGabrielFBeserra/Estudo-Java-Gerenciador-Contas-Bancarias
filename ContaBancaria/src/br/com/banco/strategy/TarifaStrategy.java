@@ -14,8 +14,8 @@ public enum TarifaStrategy {
     PERCENTUAL_20 {
         @Override public double calcular(double saldo) { return saldo * 0.20; } // 1%
     },
-    PERCENTUAL_50 {
-        @Override public double calcular(double saldo) { return saldo * 0.50; } // 1%
+    PERCENTUAL_ {
+        @Override public double calcular(double saldo) { return saldo * 0.20; } // 1%
     },
     ISENTA {
         @Override public double calcular(double saldo) { return 0.0; }

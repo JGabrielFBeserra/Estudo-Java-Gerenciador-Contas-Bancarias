@@ -1,7 +1,6 @@
 package br.com.banco.service;
 
 import br.com.banco.conexao.GerenciadorBancoDAO;
-import br.com.banco.core.Banco;
 import br.com.banco.exceptions.SaldoInsuficienteException;
 import br.com.banco.model.ContaCorrente;
 import java.sql.SQLException;

@@ -1,10 +1,10 @@
-123,Renan Cavichi DevWeb,379.00
+123,Renan Cavichi DevWeb,460.00
 3145,Gustavo,1123.00
-77676,Bruno Carvalho,3734.72
+77676,Bruno Carvalho,0.00
 102886,Juliana Castro,12209.36
 126091,João Silva,2635.11
 248227,Gabriel Melo,11909.07
-316397,Bruno Carvalho,81.99
+316397,Bruno Carvalho,0.99
 364236,André Barbosa,9677.75
 423883,Tiago,2.00
 444169,Pedro Alves,11478.77
@@ -13,4 +13,3 @@
 721599,João Silva,2951.41
 771456,Gabriel Melo,21446.13
 832850,Beatriz Rocha,15235.21
-963167,Fernanda Dias,16568.81
