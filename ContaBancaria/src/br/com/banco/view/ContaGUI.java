@@ -415,6 +415,8 @@ public class ContaGUI extends javax.swing.JDialog {
             JOptionPane.showMessageDialog(this, "Falha ao atualizar: " + re.getMessage(),
                     "Erro", JOptionPane.ERROR_MESSAGE);
         }
+        
+        
     }//GEN-LAST:event_btnEditarActionPerformed
 
     private void btnAplicarTarifaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAplicarTarifaActionPerformed

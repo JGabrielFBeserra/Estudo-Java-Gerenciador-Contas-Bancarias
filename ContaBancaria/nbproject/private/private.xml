@@ -3,18 +3,20 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/joao.beserra/Documents/NetBeansProjects/ContaBancaria/src/br/com/banco/app/Main.java</file>
-            <file>file:/C:/Users/joao.beserra/Documents/NetBeansProjects/ContaBancaria/src/br/com/banco/view/ListContaGUI.java</file>
-            <file>file:/C:/Users/joao.beserra/Documents/NetBeansProjects/ContaBancaria/src/br/com/banco/view/ContaGUI.java</file>
-            <file>file:/C:/Users/joao.beserra/Documents/NetBeansProjects/ContaBancaria/src/br/com/banco/conexao/script.txt</file>
-            <file>file:/C:/Users/joao.beserra/Documents/NetBeansProjects/ContaBancaria/src/br/com/banco/conexao/ConexaoDAO.java</file>
-            <file>file:/C:/Users/joao.beserra/Documents/NetBeansProjects/ContaBancaria/src/br/com/banco/core/Banco.java</file>
-            <file>file:/C:/Users/joao.beserra/Documents/NetBeansProjects/ContaBancaria/src/br/com/banco/conexao/GerenciadorBancoDAO.java</file>
-            <file>file:/C:/Users/joao.beserra/Documents/NetBeansProjects/ContaBancaria/src/br/com/banco/model/ContaCorrente.java</file>
-            <file>file:/C:/Users/joao.beserra/Documents/NetBeansProjects/ContaBancaria/src/br/com/banco/model/Conta.java</file>
-            <file>file:/C:/Users/joao.beserra/Documents/NetBeansProjects/ContaBancaria/src/br/com/banco/service/BancoService.java</file>
-            <file>file:/C:/Users/joao.beserra/Documents/NetBeansProjects/ContaBancaria/src/br/com/banco/service/ContaCorrenteService.java</file>
-            <file>file:/C:/Users/joao.beserra/Documents/NetBeansProjects/ContaBancaria/src/br/com/banco/conexao/InitDAO.java</file>
+            <file>file:/C:/Users/jgabr/OneDrive/Documentos/NetBeansProjects/ContaBancaria/src/br/com/banco/exceptions/SaldoInsuficienteException.java</file>
+            <file>file:/C:/Users/jgabr/OneDrive/Documentos/NetBeansProjects/ContaBancaria/src/br/com/banco/model/ContaCorrente.java</file>
+            <file>file:/C:/Users/jgabr/OneDrive/Documentos/NetBeansProjects/ContaBancaria/src/br/com/banco/model/Conta.java</file>
+            <file>file:/C:/Users/jgabr/OneDrive/Documentos/NetBeansProjects/ContaBancaria/src/br/com/banco/conexao/ConexaoDAO.java</file>
+            <file>file:/C:/Users/jgabr/OneDrive/Documentos/NetBeansProjects/ContaBancaria/src/br/com/banco/conexao/script.txt</file>
+            <file>file:/C:/Users/jgabr/OneDrive/Documentos/NetBeansProjects/ContaBancaria/src/br/com/banco/conexao/GerenciadorBancoDAO.java</file>
+            <file>file:/C:/Users/jgabr/OneDrive/Documentos/NetBeansProjects/ContaBancaria/src/br/com/banco/conexao/InitDAO.java</file>
+            <file>file:/C:/Users/jgabr/OneDrive/Documentos/NetBeansProjects/ContaBancaria/src/br/com/banco/service/BancoService.java</file>
+            <file>file:/C:/Users/jgabr/OneDrive/Documentos/NetBeansProjects/ContaBancaria/src/br/com/banco/service/ContaCorrenteService.java</file>
+            <file>file:/C:/Users/jgabr/OneDrive/Documentos/NetBeansProjects/ContaBancaria/src/br/com/banco/view/ContaGUI.java</file>
+            <file>file:/C:/Users/jgabr/OneDrive/Documentos/NetBeansProjects/ContaBancaria/src/br/com/banco/service/TarifaService.java</file>
+            <file>file:/C:/Users/jgabr/OneDrive/Documentos/NetBeansProjects/ContaBancaria/src/br/com/banco/strategy/TarifaStrategy.java</file>
+            <file>file:/C:/Users/jgabr/OneDrive/Documentos/NetBeansProjects/ContaBancaria/src/br/com/banco/app/Main.java</file>
+            <file>file:/C:/Users/jgabr/OneDrive/Documentos/NetBeansProjects/ContaBancaria/src/br/com/banco/view/ListContaGUI.java</file>
         </group>
     </open-files>
 </project-private>

@@ -43,7 +43,7 @@ public class TarifaService {
             contaService.sacar(numero, valor);   
             return valor;
         } catch (SaldoInsuficienteException e) {
-            return 0.0; // sem saldo: não cobra
+            return 0.0; // sem saldo não cobra
         }
     }
 
